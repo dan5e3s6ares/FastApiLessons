@@ -62,7 +62,7 @@ Você pode declarar “parâmetros” ou “variáveis” de caminho com a mesma
         lenet = "lenet"
     ...
     @app.get("/items_enum/{items_enum}")
-    async def get_model(items_enum: ItemsEnum):
+    async def get_items_enum(items_enum: ItemsEnum):
         return {"Item Enum": items_enum}
     ```
 
@@ -81,3 +81,15 @@ Quando você declara outros parâmetros de função que não fazem parte dos par
     ```
     > [Consulta: http://127.0.0.1:8000/items/?skip=0&limit=1](http://127.0.0.1:8000/items/?skip=0&limit=1)
 
+- Step 2:
+    > Update main.py
+    ```python
+    ...
+    @app.get("/items/{item_id}")
+    async def read_item_optional(item_id: str, q: str | None = None):
+        if q:
+            return {"item_id": item_id, "q": q}
+        return {"item_id": item_id}
+    ```
+    > [Consulta: http://127.0.0.1:8000/items/ABC?q=QWERTY](http://127.0.0.1:8000/items/ABC?q=QWERTY)
+    > [Consulta: http://127.0.0.1:8000/items/ABC](http://127.0.0.1:8000/items/ABC)
