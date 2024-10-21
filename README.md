@@ -61,7 +61,7 @@ Você pode declarar “parâmetros” ou “variáveis” de caminho com a mesma
         resnet = "resnet"
         lenet = "lenet"
     ...
-    @app.get("/modeitems_enum/{items_enum}")
-    async def get_model(items_enum: ItemsEnum):
+    @app.get("/items_enum/{items_enum}")
+    async def get_items_enum(items_enum: ItemsEnum):
         return {"Item Enum": items_enum}
     ```

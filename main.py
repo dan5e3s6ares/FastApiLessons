@@ -26,6 +26,6 @@ async def read_item_integer(item_id: int):
     return {"item_id": item_id}
 
 
-@app.get("/modeitems_enum/{items_enum}")
-async def get_model(items_enum: ItemsEnum):
+@app.get("/items_enum/{items_enum}")
+async def get_items_enum(items_enum: ItemsEnum):
     return {"Item Enum": items_enum}
