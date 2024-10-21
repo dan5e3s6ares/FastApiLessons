@@ -34,7 +34,7 @@ async def read_item_integer(item_id: int):
 
 
 @app.get("/items_enum/{items_enum}")
-async def get_model(items_enum: ItemsEnum):
+async def get_items_enum(items_enum: ItemsEnum):
     return {"Item Enum": items_enum}
 
 
@@ -44,7 +44,7 @@ async def read_query_items(skip: int = 0, limit: int = 10):
 
 
 @app.get("/items/{item_id}")
-async def read_item(item_id: str, q: str | None = None):
+async def read_item_optional(item_id: str, q: str | None = None):
     if q:
         return {"item_id": item_id, "q": q}
     return {"item_id": item_id}
