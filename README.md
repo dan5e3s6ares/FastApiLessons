@@ -30,3 +30,38 @@ Passo a passo de criação de um servidor em FastAPi, os passos estão separados
     async def root():
         return {"message": "Hello World"}
     ```
+
+## Path Parameters
+Você pode declarar “parâmetros” ou “variáveis” de caminho com a mesma sintaxe usada pelas strings de formato do Python
+
+- Step 1:
+    > Update main.py - add items_any_type endpoint
+    ```python
+    ...
+    @app.get("/items_any_type/{item_id}")
+    async def read_item(item_id):
+        return {"item_id": item_id}
+
+    ```
+- Step 2:
+    > Update main.py - add items_integer endpoint
+    ```python
+    ...
+    @app.get("/items_integer/{item_id}")
+    async def read_item_integer(item_id : int):
+        return {"item_id": item_id}
+    ```
+- Step 3:
+    > Update main.py - add models endpoint with options
+    ```python
+    from enum import Enum
+    ...
+    class ItemsEnum(str, Enum):
+        alexnet = "alexnet"
+        resnet = "resnet"
+        lenet = "lenet"
+    ...
+    @app.get("/modeitems_enum/{items_enum}")
+    async def get_model(items_enum: ItemsEnum):
+        return {"Item Enum": items_enum}
+    ```
