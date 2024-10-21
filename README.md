@@ -61,7 +61,23 @@ Você pode declarar “parâmetros” ou “variáveis” de caminho com a mesma
         resnet = "resnet"
         lenet = "lenet"
     ...
-    @app.get("/modeitems_enum/{items_enum}")
+    @app.get("/items_enum/{items_enum}")
     async def get_model(items_enum: ItemsEnum):
         return {"Item Enum": items_enum}
     ```
+
+## Query Parameters
+Quando você declara outros parâmetros de função que não fazem parte dos parâmetros de caminho, eles são automaticamente interpretados como parâmetros de “consulta”.
+
+- Step 1:
+    > Update main.py
+    ```python
+    ...
+    fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
+    ...
+    @app.get("/items/")
+    async def read_query_items(skip: int = 0, limit: int = 10):
+        return fake_items_db[skip : skip + limit]
+    ```
+    > [Consulta: http://127.0.0.1:8000/items/?skip=0&limit=1](http://127.0.0.1:8000/items/?skip=0&limit=1)
+
