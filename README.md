@@ -93,3 +93,48 @@ Quando você declara outros parâmetros de função que não fazem parte dos par
     ```
     > [Consulta: http://127.0.0.1:8000/items/ABC?q=QWERTY](http://127.0.0.1:8000/items/ABC?q=QWERTY)
     > [Consulta: http://127.0.0.1:8000/items/ABC](http://127.0.0.1:8000/items/ABC)
+
+## Request Body & PYDANTIC
+Quando você precisa enviar dados de um cliente (digamos, um navegador) para a sua API, você os envia como um payload (request body).
+Sua API quase sempre precisa enviar um payload de resposta. Mas os clientes não precisam necessariamente enviar payloads de solicitação o tempo todo, às vezes eles solicitam apenas um caminho, talvez com alguns parâmetros de consulta, mas não enviam um payload.
+Para declarar um payload, você usa os modelos Pydantic com todo o seu poder e benefícios.
+
+- Step 1:
+    > Update main.py
+    ```python
+    ...
+    from pydantic import BaseModel
+    class Item(BaseModel):
+        name: str
+        description: str | None = None
+        price: float
+        tax: float | None = None
+    ...
+    @app.post("/items/")
+    async def create_item(item: Item):
+        return item
+    ```
+    Requisição COM erros
+    ```shell
+    curl --location 'http://localhost:8000/items/' \
+        --header 'Content-Type: application/json' \
+        --data '{"abc":"ABC"}'
+    ```
+    Requisição SEM erros
+    ```shell
+    curl --location 'http://localhost:8000/items/' \
+        --header 'Content-Type: application/json' \
+        --data '{"name":"ABC", "price": 56.1}'
+    ```
+    Requisição SEM erros com todos os campos
+    ```shell
+    curl --location 'http://localhost:8000/items/' \
+        --header 'Content-Type: application/json' \
+        --data '{"name":"ABC", "description": "Descrição ","price": 56.1, "tax": 6.8}'
+    ```
+    Requisição COM erro com todos os campos
+    ```shell
+    curl --location 'http://localhost:8000/items/' \
+        --header 'Content-Type: application/json' \
+        --data '{"name":"ABC", "description": "Descrição ","price": 56.1, "tax": "ASD"}'
+    ```

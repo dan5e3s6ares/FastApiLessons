@@ -1,0 +1,26 @@
+{
+    "detail": [
+        {
+            "type": "missing",
+            "loc": [
+                "body",
+                "name"
+            ],
+            "msg": "Field required",
+            "input": {
+                "ABC": "abc"
+            }
+        },
+        {
+            "type": "missing",
+            "loc": [
+                "body",
+                "price"
+            ],
+            "msg": "Field required",
+            "input": {
+                "ABC": "abc"
+            }
+        }
+    ]
+}

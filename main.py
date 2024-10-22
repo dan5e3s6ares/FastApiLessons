@@ -1,8 +1,16 @@
 from enum import Enum
 
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
+
+
+class Item(BaseModel):
+    name: str
+    description: str | None = None
+    price: float
+    tax: float | None = None
 
 
 class ItemsEnum(str, Enum):
@@ -48,3 +56,8 @@ async def read_item_optional(item_id: str, q: str | None = None):
     if q:
         return {"item_id": item_id, "q": q}
     return {"item_id": item_id}
+
+
+@app.post("/items/")
+async def create_item(item: Item):
+    return item
