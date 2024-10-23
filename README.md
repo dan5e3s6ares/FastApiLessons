@@ -138,3 +138,73 @@ Para declarar um payload, você usa os modelos Pydantic com todo o seu poder e b
         --header 'Content-Type: application/json' \
         --data '{"name":"ABC", "description": "Descrição ","price": 56.1, "tax": "ASD"}'
     ```
+
+## Swagger OpenAPI
+
+### Interactive API docs
+Agora, acesse [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+Você verá a documentação interativa automática da API (fornecida pela Swagger UI)
+
+### Alternative API docs
+E agora, vá para [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+Você verá a documentação automática alternativa (fornecida pelo ReDoc)
+
+- Step 1:
+    > Update main.py add tags
+    ```python
+    tags=["items"]
+    tags=["items id"]
+    tags=["items enum"]
+    ```
+- Step 2:
+    > Update main.py
+    ```python
+    ...
+    tags_metadata = [
+        {
+            "name": "items id",
+            "description": "Operações com Items usando ID.",
+        },
+        {
+            "name": "items",
+            "description": "Operações Simples com Items",
+        },
+        {
+            "name": "items enum",
+            "description": "Operações com Items usando Enum de opções",
+        },
+    ]
+    app = FastAPI(
+        ...
+        openapi_tags=tags_metadata,
+    )
+    ```
+- Step 3
+    > Update main.py add summary and description
+    ```python
+    ...
+    @app.post(
+        "/items/",
+        tags=["items"],
+        response_model=Item,
+        summary="Create an Item",
+        description="Create an Item with all the information",
+    )
+    ```
+- Step 5
+    > Update main.py add description with docstring
+    ```python
+    async def create_item(item: Item):
+        """
+        Create an item with all the information:
+
+        - **name**: each item must have a name
+        - **description**: a long description
+        - **price**: required
+        - **tax**: if the item doesn't have tax, you can omit this
+        - **tags**: a set of unique tag strings for this item
+        """
+        ...
+    ```
