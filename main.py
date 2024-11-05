@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -42,9 +43,9 @@ app = FastAPI(
 
 class Item(BaseModel):
     name: str
-    description: str | None = None
+    description: Optional[str] = None
     price: float
-    tax: float | None = None
+    tax: Optional[float] = None
 
 
 class ItemsEnum(str, Enum):
@@ -90,7 +91,7 @@ async def read_query_items(skip: int = 0, limit: int = 10):
     tags=["items id"],
     description="Get items from fake DB",
 )
-async def read_item_optional(item_id: str, q: str | None = None):
+async def read_item_optional(item_id: str, q: Optional[str] = None):
     if q:
         return {"item_id": item_id, "q": q}
     return {"item_id": item_id}

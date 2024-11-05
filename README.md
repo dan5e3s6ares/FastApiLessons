@@ -208,3 +208,151 @@ Você verá a documentação automática alternativa (fornecida pelo ReDoc)
         """
         ...
     ```
+
+## Container - Docker
+
+Os contêineres (principalmente os contêineres do Linux) são uma maneira muito leve de empacotar aplicativos,
+incluindo todas as suas dependências e arquivos necessários, mantendo-os isolados de outros contêineres
+(outros aplicativos ou componentes) no mesmo sistema.
+</p>
+Então, como rodar nosso servidor em um Container?
+</p>
+
+### Instalação do Docker e Docker Compose
+
+#### Windows
+
+1. **Baixar Docker Desktop:**
+    - Acesse [Docker Desktop para Windows](https://www.docker.com/products/docker-desktop) e baixe o instalador.
+
+2. **Instalar Docker Desktop:**
+    - Execute o instalador baixado e siga as instruções na tela.
+
+3. **Verificar a instalação:**
+    - Após a instalação, abra o terminal (PowerShell ou CMD) e execute:
+    ```shell
+    docker --version
+    docker-compose --version
+    ```
+
+#### Linux (Ubuntu)
+
+1. **Atualizar o índice de pacotes:**
+    ```shell
+    sudo apt-get update
+    ```
+
+2. **Instalar pacotes necessários:**
+    ```shell
+    sudo apt-get install \
+        ca-certificates \
+        curl \
+        gnupg \
+        lsb-release
+    ```
+
+3. **Adicionar a chave GPG oficial do Docker:**
+    ```shell
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    ```
+
+4. **Adicionar o repositório Docker:**
+    ```shell
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    ```
+
+5. **Instalar Docker Engine:**
+    ```shell
+    sudo apt-get update
+    sudo apt-get install docker-ce docker-ce-cli containerd.io
+    ```
+
+6. **Verificar a instalação do Docker:**
+    ```shell
+    sudo docker --version
+    ```
+
+7. **Instalar Docker Compose:**
+    ```shell
+    sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K.*\d')" /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    ```
+
+8. **Verificar a instalação do Docker Compose:**
+    ```shell
+    docker-compose --version
+    ```
+
+9. **Adicionar o grupo docker**
+    ```shell
+    sudo groupadd docker
+    ```
+
+10. **Adicionar o usuário atual ao grupo docker**
+    ```shell
+    sudo gpasswd -a $USER docker
+    ```
+
+Agora você está pronto para rodar seu servidor FastAPI em um contêiner Docker!
+
+### Rodando FastAPI com Docker Compose
+
+#### Passo 1: Criar um arquivo `Dockerfile`
+Crie um arquivo chamado `Dockerfile` no diretório raiz do seu projeto e adicione o seguinte conteúdo:
+
+```dockerfile
+# Use uma imagem base oficial do Python
+FROM python:3.9
+
+# Defina o diretório de trabalho
+WORKDIR /app
+
+# Copie o arquivo de requisitos
+COPY requirements.txt .
+
+# Instale as dependências
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copie o restante do código da aplicação
+COPY . .
+
+# Comando para rodar a aplicação
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+```
+
+#### Passo 2: Criar um arquivo `docker-compose.yml`
+Crie um arquivo chamado `docker-compose.yml` no diretório raiz do seu projeto e adicione o seguinte conteúdo:
+
+```yaml
+version: '3.8'
+
+services:
+    web:
+        build: .
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/app
+        environment:
+            - ENV=development
+```
+
+#### Passo 3: Criar um arquivo `requirements.txt`
+Crie um arquivo chamado `requirements.txt` no diretório raiz do seu projeto e adicione as dependências do FastAPI:
+
+```
+fastapi
+uvicorn[standard]
+```
+
+#### Passo 4: Rodar o Docker Compose
+No terminal, navegue até o diretório raiz do seu projeto e execute o seguinte comando para iniciar o servidor FastAPI com Docker Compose:
+
+```shell
+docker-compose up --build
+```
+
+Agora, seu servidor FastAPI deve estar rodando em um contêiner Docker e acessível em [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
