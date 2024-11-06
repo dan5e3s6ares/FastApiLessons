@@ -356,3 +356,91 @@ docker-compose up --build
 
 Agora, seu servidor FastAPI deve estar rodando em um contêiner Docker e acessível em [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
+## O que é o Banco de Dados Redis
+
+Redis é um banco de dados de estrutura de dados em memória, usado como banco de dados, cache e broker de mensagens. Ele suporta estruturas de dados como strings, hashes, listas, conjuntos, conjuntos ordenados com consultas de intervalo, bitmaps, hiperloglogs, índices geoespaciais com consultas de raio e streams. Redis possui replicação integrada, scripts Lua, LRU eviction, transações e diferentes níveis de persistência no disco, além de alta disponibilidade e particionamento automático com Redis Sentinel e Redis Cluster.
+
+Redis é conhecido por sua alta performance, simplicidade e flexibilidade, tornando-o uma escolha popular para aplicações que exigem respostas rápidas e armazenamento temporário de dados.
+
+### Adicionando Redis ao Docker Compose
+
+#### Passo 1: Atualizar o arquivo `docker-compose.yml`
+Atualize o arquivo `docker-compose.yml` para incluir um serviço Redis:
+
+```yaml
+version: '3.8'
+
+services:
+    web:
+        build: .
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/app
+        environment:
+            - ENV=development
+        depends_on:
+            - redis
+
+    redis:
+        image: "redis:alpine"
+        ports:
+            - "6379:6379"
+```
+
+#### Passo 2: Instalar a biblioteca Redis para Python
+Adicione a biblioteca `redis` ao arquivo `requirements.txt`:
+
+```
+fastapi
+uvicorn[standard]
+redis
+```
+
+#### Passo 3: Atualizar o arquivo `main.py`
+Atualize o arquivo `main.py` para incluir endpoints que permitem definir e buscar mensagens por ID:
+
+```python
+...
+import redis
+
+# Conectar ao Redis
+r = redis.Redis(host='redis', port=6379, db=0)
+
+class Payload(BaseModel):
+    message: str
+...
+
+@app.post("/set_message/{message_id}")
+async def set_message(message_id: str, payload: Payload):
+    r.set(message_id, payload.message)
+    return {"message": "Message set successfully", "id": message_id}
+
+@app.get("/get_message/{message_id}")
+async def get_message(message_id: str):
+    message = r.get(message_id)
+    if message:
+        return {"message": message.decode('utf-8'), "id": message_id}
+    return {"message": "No message found", "id": message_id}
+```
+
+#### Passo 2: Rodar o Docker Compose
+No terminal, navegue até o diretório raiz do seu projeto e execute o seguinte comando para iniciar o servidor FastAPI e o Redis com Docker Compose:
+
+```shell
+docker-compose up --build
+```
+
+### Comandos curl para adicionar e consultar mensagens por ID
+
+#### Adicionar uma mensagem por ID
+```shell
+curl --location --request POST 'http://127.0.0.1:8000/set_message/1' \
+--header 'Content-Type: application/json' \
+--data-raw '{"message":"Hello, Redis with ID!"}'
+```
+
+#### Consultar uma mensagem por ID
+```shell
+curl --location --request GET 'http://127.0.0.1:8000/get_message/1'
+```

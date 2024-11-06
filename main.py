@@ -1,8 +1,12 @@
 from enum import Enum
 from typing import Optional
 
+import redis
 from fastapi import FastAPI
 from pydantic import BaseModel
+
+r = redis.Redis(host="redis", port=6379, db=0)
+
 
 description = """
 FirstAPILessons API helps you do awesome stuff. 🚀
@@ -61,6 +65,10 @@ fake_items_db = [
 ]
 
 
+class Payload(BaseModel):
+    message: str
+
+
 @app.get("/", tags=["items"])
 async def root():
     return {"message": "Hello World"}
@@ -114,3 +122,17 @@ async def create_item(item: Item):
     - **tags**: a set of unique tag strings for this item
     """
     return item
+
+
+@app.post("/set_message/{message_id}")
+async def set_message(message_id: str, payload: Payload):
+    r.set(message_id, payload.message)
+    return {"message": "Message set successfully", "id": message_id}
+
+
+@app.get("/get_message/{message_id}")
+async def get_message(message_id: str):
+    message = r.get(message_id)
+    if message:
+        return {"message": message.decode("utf-8"), "id": message_id}
+    return {"message": "No message found", "id": message_id}
