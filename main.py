@@ -3,6 +3,8 @@ from typing import Optional
 
 import redis
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
+from jinja2 import Environment, FileSystemLoader
 from pydantic import BaseModel
 
 r = redis.Redis(host="redis", port=6379, db=0)
@@ -136,3 +138,17 @@ async def get_message(message_id: str):
     if message:
         return {"message": message.decode("utf-8"), "id": message_id}
     return {"message": "No message found", "id": message_id}
+
+
+env = Environment(loader=FileSystemLoader("templates"))
+
+
+@app.get("/messages", response_class=HTMLResponse)
+async def get_messages():
+    template = env.get_template("messages.html")
+    keys = r.keys()
+    messages = {
+        key.decode("utf-8"): r.get(key).decode("utf-8") for key in keys
+    }
+    html_content = template.render(messages=messages)
+    return HTMLResponse(content=html_content)

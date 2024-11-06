@@ -444,3 +444,82 @@ curl --location --request POST 'http://127.0.0.1:8000/set_message/1' \
 ```shell
 curl --location --request GET 'http://127.0.0.1:8000/get_message/1'
 ```
+
+### Retornando uma Páginal HTML
+
+Para criar um endpoint que retorne uma página HTML bem formatada com todas as mensagens salvas no banco de dados Redis, siga os passos abaixo:
+
+### Passo 1: Instalar o Jinja2
+Adicione a biblioteca `jinja2` ao arquivo `requirements.txt`
+
+### Passo 2: Criar o Template HTML
+Crie um diretório chamado "templates" no seu projeto e adicione um arquivo "messages.html" com o seguinte conteúdo:
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Messages</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Message</th>
+        </tr>
+        {% for message_id, message in messages.items() %}
+        <tr>
+            <td>{{ message_id }}</td>
+            <td>{{ message }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+```
+
+### Passo 3: Adicione o Endpoint no `main.py`
+Adicione o seguinte código no seu arquivo main.py para criar o endpoint que renderiza a página HTML:
+```python
+...
+from fastapi.responses import HTMLResponse
+from jinja2 import Environment, FileSystemLoader
+...
+# Configuração do Jinja2
+env = Environment(loader=FileSystemLoader('templates'))
+
+@app.get("/messages", response_class=HTMLResponse)
+async def get_messages():
+    template = env.get_template('messages.html')
+    keys = r.keys()
+    messages = {key.decode('utf-8'): r.get(key).decode('utf-8') for key in keys}
+    html_content = template.render(messages=messages)
+    return HTMLResponse(content=html_content)
+```
+
+### Passo 4: Rodar o Docker Compose
+```shell
+    docker-compose up --build
+```
+
+### Passo 5: Acessar a Página HTML
+Abra o navegador e acesse http://127.0.0.1:8000/messages para ver a página HTML com todas as mensagens salvas no banco de dados Redis.
