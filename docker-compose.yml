@@ -9,3 +9,10 @@ services:
             - .:/app
         environment:
             - ENV=development
+        depends_on:
+            - redis
+
+    redis:
+        image: "redis:alpine"
+        ports:
+            - "6379:6379"
