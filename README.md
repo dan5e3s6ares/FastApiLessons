@@ -30,6 +30,11 @@ Passo a passo de criação de um servidor em FastAPi, os passos estão separados
     async def root():
         return {"message": "Hello World"}
     ```
+- Step 3:
+  > Run the FastAPI server
+  ```shell
+  foo@bar:~$ fastapi run main.py
+  ``
 
 ## Path Parameters
 Você pode declarar “parâmetros” ou “variáveis” de caminho com a mesma sintaxe usada pelas strings de formato do Python
